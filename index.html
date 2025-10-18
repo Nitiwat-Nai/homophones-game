@@ -412,17 +412,18 @@
         let voices = [];
         let audioContext;
 
-        // --- CORE FUNCTIONS ---
+        // --- CORE FUNCTIONS (AUDIO) ---
 
         function initAudioContext() {
              // Initialize AudioContext lazily on user interaction
             if (!audioContext) {
+                // To avoid "The AudioContext was not allowed to start" error, initialize on a user-driven event (like the first button click).
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
             }
         }
         
         // Function to create and play a simple tone (Ping/Fail)
-        function createTone(frequency, duration, type, volume = 0.5) {
+        function createTone(frequency, duration, type, volume = 0.5, startFreq = null) {
             initAudioContext();
             if (!audioContext) return;
             
@@ -432,10 +433,18 @@
             oscillator.connect(gainNode);
             gainNode.connect(audioContext.destination);
 
-            oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
-            oscillator.type = type; // 'sine', 'square', 'sawtooth', 'triangle'
+            if (startFreq) {
+                // For a slight pitch bend effect on correct
+                oscillator.frequency.setValueAtTime(startFreq, audioContext.currentTime);
+                oscillator.frequency.linearRampToValueAtTime(frequency, audioContext.currentTime + duration * 0.5);
+            } else {
+                 oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+            }
+            
+            oscillator.type = type; 
 
             gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
+            // Fade out the sound (A sharp decay)
             gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + duration);
 
             oscillator.start();
@@ -443,12 +452,16 @@
         }
 
         function playPing() {
-            createTone(600, 0.1, 'sine', 0.8); // Higher frequency, short duration for 'ping'
+            // A quick, rising tone
+            createTone(880, 0.15, 'sine', 0.8, 660); 
         }
 
         function playFailTone() {
-            createTone(150, 0.4, 'triangle', 0.7); // Low frequency, longer duration for 'fail'
+            // A low, dropping tone
+            createTone(150, 0.4, 'triangle', 0.7, 200); 
         }
+
+        // --- CORE FUNCTIONS (SPEECH) ---
 
         function setupSpeech() {
             if ('speechSynthesis' in window) {
@@ -515,7 +528,11 @@
                 
                 btn.appendChild(titleSpan);
                 btn.setAttribute('data-level', data.level);
-                btn.addEventListener('click', () => startLevel(data.level));
+                // Call initAudioContext on first interaction
+                btn.addEventListener('click', () => {
+                    initAudioContext(); 
+                    startLevel(data.level);
+                });
                 levelGridEl.appendChild(btn);
             });
         }
@@ -612,7 +629,7 @@
             const correctWord = currentQ.correct;
             const isCorrect = selectedBtn && selectedBtn.getAttribute('data-correct') === 'true';
 
-            // 1. Determine Feedback
+            // 1. Determine Feedback (Play Sound)
             if (isCorrect) {
                 playPing();
                 score++;
@@ -649,9 +666,9 @@
                 }
             });
             
-            // Hide Thai Prompt text and show the correct word if it was a timeout
-            if (!selectedBtn) {
-                 thaiPromptEl.textContent = 'เฉลย:';
+            // If it was a timeout or wrong answer, update prompt to show "Correct Word:"
+            if (!selectedBtn || selectedBtn.getAttribute('data-correct') === 'false') {
+                 thaiPromptEl.textContent = (thaiPromptEl.textContent.includes('หมดเวลา') ? 'หมดเวลา: ' : '❌ ผิด: ') + currentLevelData.questions[currentQuizIndex].thai;
             }
 
             updateStatusBar();
@@ -674,7 +691,9 @@
 
         // --- EVENT LISTENERS ---
         function handleChoiceClick(e) {
+            // Ensure AudioContext is running
             initAudioContext();
+            
             if (!isAnswered) {
                 checkAnswer(e.target);
             }
