@@ -3,20 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>เกมฝึกฟัง Homophones</title>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+    <title>เกมฝึกศัพท์ Homophones (Level)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        /* Mobile-First CSS */
+        /* Mobile-First CSS with Vibrant Colors */
         :root {
-            --color-primary: #8E44AD; /* Deep Purple */
-            --color-secondary: #E74C3C; /* Red */
-            --color-tertiary: #2ECC71; /* Green */
-            --color-bg: #F0F3F4; /* Light Gray Background */
+            --color-primary: #FF7043; /* Bright Orange */
+            --color-secondary: #42A5F5; /* Blue */
+            --color-correct: #66BB6A; /* Green */
+            --color-wrong: #EF5350; /* Red */
+            --color-bg: #F4F7F9;
             --color-card: #FFFFFF;
-            --color-text-light: #F0F3F4;
-            --color-text-dark: #2C3E50;
-            --shadow-light: 0 4px 10px rgba(0, 0, 0, 0.1);
-            --shadow-deep: 0 8px 15px rgba(0, 0, 0, 0.2);
+            --color-text-dark: #263238;
+            --color-text-light: #FFFFFF;
         }
 
         body {
@@ -34,107 +33,137 @@
 
         .container {
             width: 100%;
-            max-width: 450px; /* Standard mobile width */
-            padding: 1.5rem;
+            max-width: 500px;
             box-sizing: border-box;
             background-color: var(--color-card);
-            box-shadow: var(--shadow-deep);
-            border-radius: 0; /* Full width on small screens */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            justify-content: flex-start;
+            padding: 0;
         }
 
-        @media (min-width: 600px) {
-            .container {
-                border-radius: 20px;
-                min-height: 80vh;
-                margin: 20px 0;
-            }
-        }
-
-        /* Header and Status */
-        h1 {
-            color: var(--color-primary);
-            font-size: 1.8rem;
-            margin-top: 0;
+        /* Header */
+        header {
+            background-color: var(--color-primary);
+            color: var(--color-text-light);
+            padding: 1.5rem 1rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
             margin-bottom: 1rem;
         }
+        header h1 {
+            font-size: 1.8rem;
+            margin: 0;
+        }
 
-        #quiz-status {
+        /* Screen Management */
+        .screen {
+            padding: 1rem;
+            display: none; /* Hidden by default */
+            flex-grow: 1;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .screen.active {
+            display: flex;
+        }
+
+        /* --- Level Selection Screen --- */
+        #level-select-screen .level-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            padding: 1rem 0;
+        }
+        .level-btn {
+            background-color: var(--color-secondary);
+            color: var(--color-text-light);
+            border: none;
+            padding: 1.5rem 0.5rem;
+            border-radius: 12px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #3188d6;
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+        .level-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #3188d6;
+        }
+        .level-btn-title {
+            font-size: 0.8rem;
+            font-weight: 400;
+            display: block;
+            margin-top: 5px;
+        }
+        
+        /* --- Game Screen --- */
+        #game-screen .status-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 0.5rem 0;
             font-weight: bold;
-            border-bottom: 1px solid #ECF0F1;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
         }
 
-        /* Prompt Card */
-        #prompt-card {
-            background-color: #F8F9F9;
-            border: 2px solid var(--color-primary);
-            border-radius: 15px;
-            padding: 1.5rem 1rem;
-            min-height: 120px;
+        /* Prompt Area (Thai Word) */
+        #prompt-area {
+            background-color: var(--color-bg);
+            border: 3px solid var(--color-primary);
+            border-radius: 20px;
+            padding: 2rem 1rem;
+            min-height: 100px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
         }
-
-        #instruction {
-            font-size: 1.2rem;
-            font-weight: bold;
-            min-height: 30px;
-        }
-
-        #timer {
-            font-size: 4rem;
+        #thai-prompt {
+            font-size: 2rem;
             font-weight: 900;
-            color: var(--color-secondary);
-            animation: pulse-timer 1s infinite alternate;
-        }
-        
-        @keyframes pulse-timer {
-            from { opacity: 0.5; }
-            to { opacity: 1.0; }
+            color: var(--color-primary);
+            line-height: 1.3;
         }
 
-        #answer-display {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: var(--color-tertiary);
-            display: none;
-            margin-top: 0.5rem;
+        /* Timer Bar */
+        #timer-bar-container {
+            width: 100%;
+            height: 10px;
+            background-color: #ECEFF1;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            overflow: hidden;
         }
-        #answer-thai {
-            font-size: 1.2rem;
-            color: var(--color-text-dark);
-            margin-top: 0.5rem;
+        #timer-bar {
+            width: 100%;
+            height: 100%;
+            background-color: var(--color-secondary);
+            transition: width 5s linear;
         }
 
         /* Choice Buttons */
         #choices {
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            gap: 12px;
+            flex-grow: 1; /* Allow buttons to push down footer */
+            justify-content: center; /* Center buttons vertically */
         }
-
         .choice-button {
-            background-color: #3498DB; /* Blue */
+            background-color: #3498DB;
             color: var(--color-text-light);
             border: none;
-            padding: 1.2rem;
-            border-radius: 10px; 
+            padding: 1.5rem;
+            border-radius: 15px; 
             font-size: 1.6rem;
             font-weight: bold;
             cursor: pointer;
             box-shadow: 0 5px 0 #2980B9;
-            transition: transform 0.1s, box-shadow 0.1s;
+            transition: all 0.2s ease-in-out;
         }
         .choice-button:not([disabled]):active { 
             transform: translateY(3px); 
@@ -146,127 +175,298 @@
             pointer-events: none;
         }
 
-        /* Feedback Colors */
+        /* Feedback Colors & Reveal */
         .choice-button.correct {
-            background-color: var(--color-tertiary);
-            box-shadow: 0 5px 0 #27AE60;
+            background-color: var(--color-correct);
+            box-shadow: 0 5px 0 #388E3C;
+            font-size: 2.5rem; /* Large text on correct reveal */
+            transition: font-size 0.5s;
         }
         .choice-button.wrong {
-            background-color: var(--color-secondary);
-            box-shadow: 0 5px 0 #C0392B;
+            background-color: var(--color-wrong);
+            box-shadow: 0 5px 0 #C62828;
+        }
+        .choice-button.hidden-on-reveal {
+            opacity: 0;
+            height: 0;
+            padding: 0;
+            margin: 0;
+            transition: opacity 0.3s, height 0.3s, padding 0.3s, margin 0.3s;
         }
 
-        /* Control Button (Start/Next) */
-        .control-group {
+        /* Footer/Control */
+        #game-footer {
             margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #ECEFF1;
         }
-
-        #start-btn {
+        #next-btn {
             background-color: var(--color-primary);
             color: var(--color-text-light);
             border: none;
             width: 100%;
             padding: 1rem;
             border-radius: 50px;
-            font-size: 1.4rem;
+            font-size: 1.2rem;
             font-weight: bold;
             cursor: pointer;
-            box-shadow: 0 4px 0 #6C3483;
-            transition: transform 0.1s, box-shadow 0.1s;
+            box-shadow: 0 4px 0 #E64A19;
+            transition: all 0.1s;
         }
-        #start-btn:active {
+        #next-btn:active {
             transform: translateY(2px);
-            box-shadow: 0 2px 0 #6C3483;
+            box-shadow: 0 2px 0 #E64A19;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <div>
-            <h1>👂 เกมฝึกฟัง Homophones</h1>
-            
-            <div id="quiz-status">
-                <span id="score">คะแนน: 0</span>
-                <span id="q-count">ข้อ: 0/10</span>
-            </div>
-            
-            <div id="prompt-card">
-                <span id="instruction">กดปุ่ม "เริ่มเกม" เพื่อเริ่มต้น!</span>
-                <span id="timer"></span>
-                <span id="answer-display"></span>
-                <span id="answer-thai"></span>
-            </div>
+        <header>
+            <h1>Homophone Quiz Challenge</h1>
+        </header>
 
-            <div id="choices">
-                <button id="choice-A" class="choice-button" disabled>ตัวเลือก A</button>
-                <button id="choice-B" class="choice-button" disabled>ตัวเลือก B</button>
-            </div>
+        <div id="level-select-screen" class="screen active">
+            <h2>🏆 เลเวลที่ 1 - 10</h2>
+            <p>เลือกเลเวลที่คุณต้องการฝึกฝน:</p>
+            <div class="level-grid" id="level-grid">
+                </div>
+            <p style="padding-top: 2rem; color:#9E9E9E;">มีทั้งหมด 100 คำศัพท์</p>
         </div>
 
-        <div class="control-group">
-            <button id="start-btn">เริ่มเกม ▶️</button>
+        <div id="game-screen" class="screen">
+            <div class="top-content">
+                <div class="status-bar">
+                    <span id="level-title">Level: </span>
+                    <span id="q-count">ข้อ: 0/10</span>
+                    <span id="score">คะแนน: 0</span>
+                </div>
+
+                <div id="timer-bar-container">
+                    <div id="timer-bar"></div>
+                </div>
+
+                <div id="prompt-area">
+                    <span id="thai-prompt">โจทย์คำแปลภาษาไทย</span>
+                </div>
+
+                <div id="choices">
+                    <button id="choice-A" class="choice-button" disabled></button>
+                    <button id="choice-B" class="choice-button" disabled></button>
+                </div>
+            </div>
+
+            <div id="game-footer">
+                <button id="next-btn" disabled>ข้อถัดไป/กลับหน้าหลัก</button>
+            </div>
         </div>
     </div>
 
     <script>
-        // Data สำหรับ Homophones ที่ใช้ในเกม
-        const homophones = [
-            { correct: "to", decoy: "too", thai: "ถึง, สู่ (คำบุพบท)" },
-            { correct: "their", decoy: "there", thai: "ของพวกเขา" },
-            { correct: "hear", decoy: "here", thai: "ได้ยิน" },
-            { correct: "write", decoy: "right", thai: "เขียน" },
-            { correct: "new", decoy: "knew", thai: "ใหม่" },
-            { correct: "sun", decoy: "son", thai: "พระอาทิตย์" },
-            { correct: "buy", decoy: "by", thai: "ซื้อ" },
-            { correct: "plane", decoy: "plain", thai: "เครื่องบิน" },
-            { correct: "week", decoy: "weak", thai: "สัปดาห์" },
-            { correct: "one", decoy: "won", thai: "หนึ่ง (1)" },
+        // --- DATA (10 Levels x 10 Questions) ---
+        const allQuizData = [
+            { level: 1, title: "คำพ้องเสียงพื้นฐาน 1", questions: [
+                { thai: "ถึง, สู่ (คำบุพบท)", correct: "to", decoy: "too" },
+                { thai: "ของพวกเขา", correct: "their", decoy: "there" },
+                { thai: "ได้ยิน", correct: "hear", decoy: "here" },
+                { thai: "เขียน", correct: "write", decoy: "right" },
+                { thai: "ใหม่", correct: "new", decoy: "knew" },
+                { thai: "พระอาทิตย์", correct: "sun", decoy: "son" },
+                { thai: "ซื้อ", correct: "buy", decoy: "by" },
+                { thai: "เครื่องบิน", correct: "plane", decoy: "plain" },
+                { thai: "สัปดาห์", correct: "week", decoy: "weak" },
+                { thai: "หนึ่ง (1)", correct: "one", decoy: "won" },
+            ]},
+            { level: 2, title: "คำพ้องเสียงพื้นฐาน 2", questions: [
+                { thai: "รู้จัก", correct: "knew", decoy: "new" },
+                { thai: "ลูกชาย", correct: "son", decoy: "sun" },
+                { thai: "โดย", correct: "by", decoy: "buy" },
+                { thai: "ธรรมดา, เรียบง่าย", correct: "plain", decoy: "plane" },
+                { thai: "อ่อนแอ", correct: "weak", decoy: "week" },
+                { thai: "ชนะ", correct: "won", decoy: "one" },
+                { thai: "ทั้งหมด", correct: "all", decoy: "awl" },
+                { thai: "ทะเล", correct: "sea", decoy: "see" },
+                { thai: "เบื่อ", correct: "bored", decoy: "board" },
+                { thai: "มี (กริยา)", correct: "have", decoy: "half" },
+            ]},
+            { level: 3, title: "คู่ที่พบบ่อย", questions: [
+                { thai: "ชิ้น, ส่วน", correct: "piece", decoy: "peace" },
+                { thai: "ดู", correct: "see", decoy: "sea" },
+                { thai: "รู", correct: "hole", decoy: "whole" },
+                { thai: "ทั้งหมด", correct: "whole", decoy: "hole" },
+                { thai: "สำหรับ", correct: "for", decoy: "four" },
+                { thai: "ตัวเลข 4", correct: "four", decoy: "for" },
+                { thai: "แปด", correct: "eight", decoy: "ate" },
+                { thai: "กิน (อดีต)", correct: "ate", decoy: "eight" },
+                { thai: "ดอกไม้", correct: "flower", decoy: "flour" },
+                { thai: "ชั่วโมง", correct: "hour", decoy: "our" },
+            ]},
+            { level: 4, title: "คำกริยา", questions: [
+                { thai: "อนุญาต", correct: "allow", decoy: "aloud" },
+                { thai: "เสียงดัง", correct: "aloud", decoy: "allow" },
+                { thai: "ทำลาย", correct: "break", decoy: "brake" },
+                { thai: "ควบคุมการหยุด", correct: "brake", decoy: "break" },
+                { thai: "พบ", correct: "meet", decoy: "meat" },
+                { thai: "เนื้อ", correct: "meat", decoy: "meet" },
+                { thai: "รอ", correct: "wait", decoy: "weight" },
+                { thai: "น้ำหนัก", correct: "weight", decoy: "wait" },
+                { thai: "รู้", correct: "know", decoy: "no" },
+                { thai: "ไม่", correct: "no", decoy: "know" },
+            ]},
+            { level: 5, title: "คำนาม", questions: [
+                { thai: "หาง", correct: "tail", decoy: "tale" },
+                { thai: "นิทาน", correct: "tale", decoy: "tail" },
+                { thai: "ทาง, เส้นทาง", correct: "road", decoy: "rode" },
+                { thai: "ขี่ (อดีต)", correct: "rode", decoy: "road" },
+                { thai: "ขนสัตว์", correct: "fur", decoy: "fir" },
+                { thai: "ต้นสน", correct: "fir", decoy: "fur" },
+                { thai: "คู่, สอง", correct: "pair", decoy: "pear" },
+                { thai: "ลูกแพร์", correct: "pear", decoy: "pair" },
+                { thai: "จดหมาย", correct: "mail", decoy: "male" },
+                { thai: "เพศชาย", correct: "male", decoy: "mail" },
+            ]},
+            { level: 6, title: "ขั้นสูง 1", questions: [
+                { thai: "ความสงบสุข", correct: "peace", decoy: "piece" },
+                { thai: "ยอมรับ", correct: "accept", decoy: "except" },
+                { thai: "ยกเว้น", correct: "except", decoy: "accept" },
+                { thai: "หลักการ, หัวหน้า", correct: "principal", decoy: "principle" },
+                { thai: "กฎ, ทฤษฎี", correct: "principle", decoy: "principal" },
+                { thai: "ความแตกต่าง", correct: "affect", decoy: "effect" },
+                { thai: "ผลกระทบ", correct: "effect", decoy: "affect" },
+                { thai: "การขนส่งสินค้า", correct: "haul", decoy: "hall" },
+                { thai: "ห้องโถง", correct: "hall", decoy: "haul" },
+                { thai: "ถูกผูกไว้ (โดยกฎ)", correct: "bound", decoy: "bounces" },
+            ]},
+            { level: 7, title: "ขั้นสูง 2", questions: [
+                { thai: "ฝน", correct: "rain", decoy: "reign" },
+                { thai: "ครองราชย์", correct: "reign", decoy: "rain" },
+                { thai: "บท", correct: "role", decoy: "roll" },
+                { thai: "ม้วน", correct: "roll", decoy: "role" },
+                { thai: "เซลล์", correct: "cell", decoy: "sell" },
+                { thai: "ขาย", correct: "sell", decoy: "cell" },
+                { thai: "สถานที่", correct: "site", decoy: "sight" },
+                { thai: "สายตา", correct: "sight", decoy: "site" },
+                { thai: "ส่องแสง", correct: "shine", decoy: "sheen" },
+                { thai: "โดยรอบ", correct: "around", decoy: "round" },
+            ]},
+            { level: 8, title: "คำที่มีวลี", questions: [
+                { thai: "ตัวเลขศูนย์", correct: "zero", decoy: "hero" },
+                { thai: "เรือ", correct: "ship", decoy: "sheep" },
+                { thai: "แกะ", correct: "sheep", decoy: "ship" },
+                { thai: "ใบไม้", correct: "leaf", decoy: "live" },
+                { thai: "เสื้อผ้า", correct: "clothes", decoy: "cloths" },
+                { thai: "ปิด", correct: "close", decoy: "cloze" },
+                { thai: "ใกล้", correct: "close", decoy: "cloze" },
+                { thai: "การสูญเสีย", correct: "lose", decoy: "loose" },
+                { thai: "หลวม", correct: "loose", decoy: "lose" },
+                { thai: "หายใจ", correct: "breathe", decoy: "breath" },
+            ]},
+            { level: 9, title: "คำใกล้เคียง", questions: [
+                { thai: "ลมหายใจ", correct: "breath", decoy: "breathe" },
+                { thai: "มารยาท", correct: "manner", decoy: "manor" },
+                { thai: "คฤหาสน์", correct: "manor", decoy: "manner" },
+                { thai: "เป็นกลาง", correct: "neutral", decoy: "nurture" },
+                { thai: "คุณธรรม", correct: "virtue", decoy: "virtuous" },
+                { thai: "ขนมหวาน", correct: "dessert", decoy: "desert" },
+                { thai: "ทะเลทราย", correct: "desert", decoy: "dessert" },
+                { thai: "เศรษฐศาสตร์", correct: "economic", decoy: "economical" },
+                { thai: "มีคุณธรรม", correct: "moral", decoy: "morale" },
+                { thai: "กำลังใจ", correct: "morale", decoy: "moral" },
+            ]},
+            { level: 10, title: "ความท้าทายรวม", questions: [
+                { thai: "พายุหิมะ", correct: "blizzard", decoy: "billiard" },
+                { thai: "โต๊ะสนุ๊ก", correct: "billiard", decoy: "blizzard" },
+                { thai: "คนแปลกหน้า", correct: "stranger", decoy: "stronger" },
+                { thai: "แข็งแรงกว่า", correct: "stronger", decoy: "stranger" },
+                { thai: "เครื่องมือ", correct: "tool", decoy: "tulle" },
+                { thai: "ตาข่ายบาง", correct: "tulle", decoy: "tool" },
+                { thai: "ขนมปังอบ", correct: "dough", decoy: "doe" },
+                { thai: "กวางตัวเมีย", correct: "doe", decoy: "dough" },
+                { thai: "เสียงดังก้อง", correct: "boom", decoy: "bomb" },
+                { thai: "ระเบิด", correct: "bomb", decoy: "boom" },
+            ]},
         ];
 
-        // Elements
-        const instructionEl = document.getElementById('instruction');
-        const timerEl = document.getElementById('timer');
-        const answerDisplayEl = document.getElementById('answer-display');
-        const answerThaiEl = document.getElementById('answer-thai');
+        // --- ELEMENTS ---
+        const levelSelectScreen = document.getElementById('level-select-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const levelGridEl = document.getElementById('level-grid');
+
+        const levelTitleEl = document.getElementById('level-title');
+        const qCountEl = document.getElementById('q-count');
+        const scoreEl = document.getElementById('score');
+        const thaiPromptEl = document.getElementById('thai-prompt');
+        const timerBarEl = document.getElementById('timer-bar');
         const choiceA = document.getElementById('choice-A');
         const choiceB = document.getElementById('choice-B');
-        const startBtn = document.getElementById('start-btn');
-        const scoreEl = document.getElementById('score');
-        const qCountEl = document.getElementById('q-count');
+        const nextBtn = document.getElementById('next-btn');
         const choiceButtons = [choiceA, choiceB];
 
-        // Game State
+        // --- GAME STATE ---
+        let currentLevelData = null;
         let currentQuizIndex = 0;
         let score = 0;
-        let quizData = [];
-        let currentQuestion = null;
-        let timerInterval = null;
-        let speechChainTimeout = null;
+        let timerTimeout = null;
+        let isAnswered = false;
         let isSpeaking = false;
         let voices = [];
-        let actualWordSpoken = ''; // เก็บคำที่ถูกพูดจริง ๆ
+        let audioContext;
 
-        // --- Setup and Initializations ---
-        if ('speechSynthesis' in window) {
-            window.speechSynthesis.onvoiceschanged = () => {
-                voices = window.speechSynthesis.getVoices();
-            };
+        // --- CORE FUNCTIONS ---
+
+        function initAudioContext() {
+             // Initialize AudioContext lazily on user interaction
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+        
+        // Function to create and play a simple tone (Ping/Fail)
+        function createTone(frequency, duration, type, volume = 0.5) {
+            initAudioContext();
+            if (!audioContext) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+            oscillator.type = type; // 'sine', 'square', 'sawtooth', 'triangle'
+
+            gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + duration);
+
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + duration);
         }
 
+        function playPing() {
+            createTone(600, 0.1, 'sine', 0.8); // Higher frequency, short duration for 'ping'
+        }
+
+        function playFailTone() {
+            createTone(150, 0.4, 'triangle', 0.7); // Low frequency, longer duration for 'fail'
+        }
+
+        function setupSpeech() {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.onvoiceschanged = () => {
+                    voices = window.speechSynthesis.getVoices();
+                };
+            }
+        }
+        
         function getVoice(lang) {
-            // Find a good voice for Thai or English
-            if (lang === 'th-TH') {
-                return voices.find(v => v.lang.startsWith('th-TH') && v.name.includes('Lekha')) || voices.find(v => v.lang.startsWith('th-TH'));
-            } else if (lang === 'en-US') {
-                return voices.find(v => v.lang.startsWith('en-US') && v.name.includes('Samantha')) || voices.find(v => v.lang.startsWith('en-US'));
+            if (lang === 'en-US') {
+                return voices.find(v => v.lang.startsWith('en-US') && (v.name.includes('Samantha') || v.name.includes('Google US English'))) || voices.find(v => v.lang.startsWith('en-US'));
             }
             return null;
         }
 
         function speakText(text, lang, onEndCallback = null) {
             if (!'speechSynthesis' in window) {
-                console.error("Speech Synthesis not supported.");
                 if(onEndCallback) onEndCallback();
                 return;
             }
@@ -274,8 +474,8 @@
             isSpeaking = true;
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = lang;
+            utterance.rate = 0.8;
             utterance.volume = 1;
-            utterance.rate = (lang === 'th-TH') ? 0.9 : 0.8;
 
             const targetVoice = getVoice(lang);
             if (targetVoice) {
@@ -286,208 +486,222 @@
                 isSpeaking = false;
                 if (onEndCallback) onEndCallback();
             };
-            utterance.onerror = (e) => {
-                console.error('Speech Synthesis Error:', e);
+            utterance.onerror = () => {
                 isSpeaking = false;
                 if (onEndCallback) onEndCallback();
             };
             window.speechSynthesis.speak(utterance);
         }
 
-        // --- Game Flow ---
+        // --- UI & SCREEN MANAGEMENT ---
 
-        function startGame() {
-            // Reset Game State
-            clearInterval(timerInterval);
-            clearTimeout(speechChainTimeout);
-            window.speechSynthesis.cancel();
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(id).classList.add('active');
+        }
 
-            quizData = [...homophones].sort(() => 0.5 - Math.random()).slice(0, 10);
+        function createLevelButtons() {
+            levelGridEl.innerHTML = '';
+            allQuizData.forEach(data => {
+                const btn = document.createElement('button');
+                btn.className = 'level-btn';
+                btn.textContent = `Level ${data.level}`;
+                
+                const titleSpan = document.createElement('span');
+                titleSpan.className = 'level-btn-title';
+                titleSpan.textContent = data.title;
+                
+                btn.appendChild(titleSpan);
+                btn.setAttribute('data-level', data.level);
+                btn.addEventListener('click', () => startLevel(data.level));
+                levelGridEl.appendChild(btn);
+            });
+        }
+
+        function updateStatusBar() {
+            levelTitleEl.textContent = `${currentLevelData.title} (Level ${currentLevelData.level})`;
+            qCountEl.textContent = `ข้อ: ${currentQuizIndex}/${currentLevelData.questions.length}`;
+            scoreEl.textContent = `คะแนน: ${score}`;
+        }
+
+        // --- GAME LOGIC ---
+
+        function startLevel(levelId) {
+            currentLevelData = allQuizData.find(data => data.level === levelId);
             currentQuizIndex = 0;
             score = 0;
-            startBtn.textContent = 'กำลังเล่น...';
-            startBtn.disabled = true;
-            updateScoreDisplay();
+            showScreen('game-screen');
             nextQuestion();
         }
 
-        function updateScoreDisplay() {
-            scoreEl.textContent = `คะแนน: ${score}`;
-            qCountEl.textContent = `ข้อ: ${currentQuizIndex}/${quizData.length}`;
-        }
-
         function nextQuestion() {
-            // Reset UI
-            clearInterval(timerInterval);
-            clearTimeout(speechChainTimeout);
+            clearTimeout(timerTimeout);
             window.speechSynthesis.cancel();
-            timerEl.textContent = '';
-            answerDisplayEl.style.display = 'none';
-            answerThaiEl.textContent = '';
-            choiceButtons.forEach(btn => {
-                btn.className = 'choice-button';
-                btn.disabled = true;
-            });
-
-            if (currentQuizIndex >= quizData.length) {
+            
+            if (currentQuizIndex >= currentLevelData.questions.length) {
                 endGame();
                 return;
             }
             
-            // Update question count for the upcoming question
-            qCountEl.textContent = `ข้อ: ${currentQuizIndex + 1}/${quizData.length}`;
+            isAnswered = false;
+            nextBtn.textContent = 'ข้อถัดไป';
+            nextBtn.disabled = true;
 
-
-            currentQuestion = quizData[currentQuizIndex];
-            setupQuestion(currentQuestion);
+            // Reset UI
+            thaiPromptEl.style.fontSize = '2rem';
+            thaiPromptEl.style.color = 'var(--color-primary)';
+            choiceButtons.forEach(btn => {
+                btn.className = 'choice-button';
+                btn.disabled = false;
+            });
+            
+            updateStatusBar();
+            setupQuestion(currentLevelData.questions[currentQuizIndex]);
         }
 
         function setupQuestion(q) {
-            instructionEl.textContent = 'กำลังเตรียมเสียง...';
-            timerEl.style.display = 'none';
+            // Setup Prompt
+            thaiPromptEl.textContent = q.thai;
 
-            // Randomly pick which word will be the "correct" sound
-            const soundToPlay = Math.random() < 0.5 ? q.correct : q.decoy;
-            
-            // Set choices (randomize button position)
+            // Setup Choices (Randomize position)
             const choices = [q.correct, q.decoy];
             choices.sort(() => 0.5 - Math.random());
 
             choiceA.textContent = choices[0];
+            choiceA.setAttribute('data-correct', choices[0] === q.correct);
             choiceB.textContent = choices[1];
-            
-            // Store the actual word spoken
-            actualWordSpoken = soundToPlay;
+            choiceB.setAttribute('data-correct', choices[1] === q.correct);
 
-            // Start the speech sequence
-            playSpeechSequence(soundToPlay);
-        }
-
-        function playSpeechSequence(word) {
-            instructionEl.textContent = '🔊 ฟังคำศัพท์แล้วเลือกคำที่ถูกต้อง';
-
-            // Play 1st time
-            speakText(word, 'en-US', () => {
-                // Delay 1 second, then play 2nd time
-                speechChainTimeout = setTimeout(() => {
-                    speakText(word, 'en-US', () => {
-                        // After 2nd play, start the timer
-                        startTimer();
-                    });
-                }, 1000);
-            });
+            // Start Timer
+            startTimer();
         }
 
         function startTimer() {
-            let timeLeft = 5;
-            timerEl.textContent = timeLeft;
-            instructionEl.textContent = 'เลือกคำศัพท์ให้ถูกต้อง (5 วินาที)';
-            timerEl.style.display = 'block';
+            // Reset timer bar CSS transition
+            timerBarEl.style.transition = 'none';
+            timerBarEl.style.width = '100%';
             
-            // Enable choices
-            choiceButtons.forEach(btn => btn.disabled = false);
+            // Force browser to reset (needed for re-transition)
+            void timerBarEl.offsetWidth; 
 
-            timerInterval = setInterval(() => {
-                timeLeft--;
-                timerEl.textContent = timeLeft;
-                
-                // Change timer color based on remaining time
-                if (timeLeft <= 2) {
-                    timerEl.style.color = '#C0392B'; /* Darker Red */
-                } else if (timeLeft <= 4) {
-                    timerEl.style.color = '#D35400'; /* Orange */
-                } else {
-                    timerEl.style.color = 'var(--color-secondary)';
-                }
+            // Start countdown
+            setTimeout(() => {
+                timerBarEl.style.transition = 'width 5s linear';
+                timerBarEl.style.width = '0%';
+            }, 50);
 
-                if (timeLeft <= 0) {
-                    clearInterval(timerInterval);
-                    checkAnswer(null); // Time's up (no selection made)
+            timerTimeout = setTimeout(() => {
+                if (!isAnswered) {
+                    checkAnswer(null); // Timeout
                 }
-            }, 1000);
+            }, 5000);
         }
 
-        function checkAnswer(selectedWord) {
-            // Stop timer and disable choices immediately
-            clearInterval(timerInterval);
-            window.speechSynthesis.cancel();
+        function checkAnswer(selectedBtn) {
+            if (isAnswered) return;
+            isAnswered = true;
+            clearTimeout(timerTimeout);
+            
+            // Stop timer bar animation immediately
+            timerBarEl.style.transition = 'none';
+            timerBarEl.style.width = '0%'; 
+
+            const currentQ = currentLevelData.questions[currentQuizIndex];
+            const correctWord = currentQ.correct;
+            const isCorrect = selectedBtn && selectedBtn.getAttribute('data-correct') === 'true';
+
+            // 1. Determine Feedback
+            if (isCorrect) {
+                playPing();
+                score++;
+                thaiPromptEl.textContent = '✅ ถูกต้อง!';
+            } else {
+                playFailTone();
+                thaiPromptEl.textContent = selectedBtn ? '❌ ผิด!' : 'หมดเวลา!';
+            }
+            
+            // 2. Disable all choices
             choiceButtons.forEach(btn => btn.disabled = true);
             
-            const wordToListen = actualWordSpoken;
-            const isTimeout = (selectedWord === null);
-            const isCorrectlyIdentified = (selectedWord === wordToListen); 
-
-            const correctHomophone = currentQuestion.correct; 
-            const correctThai = currentQuestion.thai;
+            // 3. Reveal and animate
+            revealAnswer(correctWord, selectedBtn);
             
-            // 1. Apply feedback colors
+            // 4. Set Next Button action
+            nextBtn.disabled = false;
+        }
+
+        function revealAnswer(correctWord, selectedBtn) {
+            // Read the correct word
+            speakText(correctWord, 'en-US');
+            
+            // Animate choices
             choiceButtons.forEach(btn => {
-                btn.classList.remove('correct', 'wrong');
-                if (btn.textContent === wordToListen) {
-                    btn.classList.add('correct'); // Highlight the SPOKEN word
-                } else if (btn.textContent === selectedWord && !isCorrectlyIdentified) {
-                    btn.classList.add('wrong'); // Highlight the selected word if WRONG
+                btn.classList.remove('wrong', 'correct');
+                
+                if (btn.textContent === correctWord) {
+                    // Correct button
+                    btn.classList.add('correct');
+                } else {
+                    // Wrong/Decoy buttons (and the incorrect choice)
+                    btn.classList.add('hidden-on-reveal');
                 }
             });
             
-            // 2. Update score and display message
-            if (isCorrectlyIdentified && !isTimeout) {
-                score++;
-                instructionEl.textContent = '✅ ถูกต้อง!';
-            } else if (isTimeout) {
-                instructionEl.textContent = 'หมดเวลา! ⌛';
-            } else {
-                instructionEl.textContent = '❌ ผิด! คำที่ได้ยินคือ...';
+            // Hide Thai Prompt text and show the correct word if it was a timeout
+            if (!selectedBtn) {
+                 thaiPromptEl.textContent = 'เฉลย:';
             }
-            timerEl.style.display = 'none'; // Clear timer display
 
-            // 3. Show Answer
-            answerDisplayEl.textContent = `คำที่ได้ยิน: ${wordToListen}`;
-            answerThaiEl.textContent = `${correctHomophone} (${correctThai})`; 
-            answerDisplayEl.style.display = 'block';
-
-            updateScoreDisplay();
-
-            // 4. Reread the spoken word and its translation
-            speakText(wordToListen, 'en-US', () => {
-                 speechChainTimeout = setTimeout(() => {
-                    // Read the Thai meaning
-                    speakText(correctThai, 'th-TH', nextQuestionDelay);
-                 }, 500);
-            });
+            updateStatusBar();
         }
-        
-        function nextQuestionDelay() {
-            // Wait 2.5 seconds before moving to the next question
-            speechChainTimeout = setTimeout(() => {
-                currentQuizIndex++;
-                nextQuestion();
-            }, 2500);
-        }
+
 
         function endGame() {
-            instructionEl.textContent = `เกมจบแล้ว! คุณทำได้ ${score} คะแนน จาก ${quizData.length} ข้อ`;
-            timerEl.style.display = 'none';
-            answerDisplayEl.style.display = 'none';
-            answerThaiEl.textContent = 'กด "เริ่มเกมใหม่" เพื่อฝึกต่อ';
+            levelTitleEl.textContent = `จบ Level ${currentLevelData.level}!`;
+            qCountEl.textContent = '';
             
-            startBtn.textContent = 'เริ่มเกมใหม่ ✨';
-            startBtn.disabled = false;
+            thaiPromptEl.textContent = `คุณทำได้ ${score}/${currentLevelData.questions.length} ข้อ`;
+            thaiPromptEl.style.fontSize = '2.5rem';
+            thaiPromptEl.style.color = score >= 8 ? 'var(--color-correct)' : 'var(--color-wrong)';
+
+            choiceButtons.forEach(btn => btn.style.display = 'none');
+            
+            nextBtn.textContent = 'กลับหน้าหลัก (Level Selection)';
+            nextBtn.disabled = false;
         }
 
-        // --- Event Listeners ---
-        startBtn.addEventListener('click', startGame);
+        // --- EVENT LISTENERS ---
+        function handleChoiceClick(e) {
+            initAudioContext();
+            if (!isAnswered) {
+                checkAnswer(e.target);
+            }
+        }
 
-        choiceButtons.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                if (!e.target.disabled) {
-                    checkAnswer(e.target.textContent); // Pass the selected word
-                }
-            });
+        choiceA.addEventListener('click', handleChoiceClick);
+        choiceB.addEventListener('click', handleChoiceClick);
+
+        nextBtn.addEventListener('click', () => {
+            if (currentQuizIndex >= currentLevelData.questions.length) {
+                // Back to Level Selection
+                choiceButtons.forEach(btn => btn.style.display = 'block');
+                showScreen('level-select-screen');
+            } else {
+                // Next Question
+                currentQuizIndex++;
+                nextQuestion();
+            }
         });
 
-        // Initial setup
-        qCountEl.textContent = `ข้อ: 0/10`;
+
+        // --- INITIAL SETUP ---
+        document.addEventListener('DOMContentLoaded', () => {
+            setupSpeech();
+            createLevelButtons();
+            showScreen('level-select-screen');
+        });
     </script>
 </body>
 </html>
