@@ -263,6 +263,12 @@
             margin: 0;
             transition: opacity 0.3s, height 0.3s, padding 0.3s, margin 0.3s;
         }
+        
+        /* Adjust font size for revealed text in prompt area */
+        #prompt-area .revealed-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
 
         /* Footer/Control */
         #game-footer {
@@ -772,7 +778,8 @@
             // Reset UI
             thaiPromptEl.style.fontSize = '2rem';
             thaiPromptEl.style.color = currentLevelData.level >= 11 ? '#F1C40F' : 'var(--color-primary)';
-            
+            thaiPromptEl.classList.remove('revealed-text'); // Remove special class
+
             // Ensure buttons are reset from the hidden state
             choiceButtons.forEach(btn => {
                 btn.className = 'choice-button';
@@ -788,9 +795,10 @@
         }
 
         function setupQuestion(q) {
+            // The prompt is only the Thai translation of the English word.
             thaiPromptEl.textContent = q.thai;
             
-            // *** NEW: Speak the Thai prompt immediately ***
+            // Speak the Thai prompt immediately
             speakText(q.thai, 'th-TH');
 
             const choices = [q.correct, q.decoy];
@@ -841,25 +849,26 @@
             if (isCorrect) {
                 playPing();
                 score++;
-                thaiPromptEl.textContent = '✅ ถูกต้อง!';
             } else {
                 playFailTone();
-                thaiPromptEl.textContent = selectedBtn ? '❌ ผิด!' : 'หมดเวลา!';
             }
             
             // 2. Disable all choices
             choiceButtons.forEach(btn => btn.disabled = true);
             
-            // 3. Reveal and animate (This will speak the English word)
-            revealAnswer(correctWord, selectedBtn);
+            // 3. Reveal and animate (This will handle display and English speech)
+            revealAnswer(correctWord, selectedBtn, isCorrect, currentQ.thai);
             
             // 4. Set Next Button action
             nextBtn.disabled = false;
         }
 
-        function revealAnswer(correctWord, selectedBtn) {
+        function revealAnswer(correctWord, selectedBtn, isCorrect, correctThaiMeaning) {
+            // Create the full revealed text: "EnglishWord (ThaiMeaning)"
+            const fullRevealText = `${correctWord} (${correctThaiMeaning})`;
+
             // Speak the correct English word for the reveal
-            speakText(correctWord, 'en-US');
+            speakText(correctWord, 'en-US'); 
             
             choiceButtons.forEach(btn => {
                 btn.classList.remove('wrong', 'correct');
@@ -871,11 +880,19 @@
                 }
             });
             
-            if (!selectedBtn || selectedBtn.getAttribute('data-correct') === 'false') {
-                 // If wrong or timed out, display the correct English word large
-                 thaiPromptEl.textContent = (thaiPromptEl.textContent.includes('หมดเวลา') ? 'หมดเวลา: ' : '❌ ผิด: ') + correctWord;
-                 thaiPromptEl.style.fontSize = '1.5rem';
+            // Update the prompt area to show status and the full context
+            let statusPrefix = '';
+            if (isCorrect) {
+                 statusPrefix = '✅ ถูกต้อง: ';
+                 thaiPromptEl.style.color = 'var(--color-correct)';
+            } else {
+                 statusPrefix = selectedBtn ? '❌ ผิด: ' : 'หมดเวลา: ';
+                 thaiPromptEl.style.color = 'var(--color-wrong)';
             }
+
+            thaiPromptEl.textContent = statusPrefix + fullRevealText;
+            thaiPromptEl.classList.add('revealed-text');
+            thaiPromptEl.style.fontSize = ''; // Let CSS handle the font size based on the class
 
             updateStatusBar();
         }
@@ -888,6 +905,8 @@
             thaiPromptEl.textContent = `คุณทำได้ ${score}/${currentLevelData.questions.length} ข้อ`;
             thaiPromptEl.style.fontSize = '2.5rem';
             thaiPromptEl.style.color = score >= 8 ? 'var(--color-correct)' : 'var(--color-wrong)';
+            thaiPromptEl.classList.remove('revealed-text');
+            thaiPromptEl.classList.add('revealed-text'); // Ensure it fits if long
 
             choiceButtons.forEach(btn => btn.style.display = 'none');
             
