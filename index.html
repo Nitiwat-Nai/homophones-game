@@ -81,6 +81,14 @@
             transform: translateY(2px);
             box-shadow: 0 2px 0 #D4AC0D;
         }
+        .container.hard-theme #auto-toggle-btn {
+            background-color: #E74C3C; /* Red for Stop in hard mode */
+            box-shadow: 0 4px 0 #C0392B;
+            color: var(--color-text-light);
+        }
+        .container.hard-theme #auto-toggle-btn:active {
+            box-shadow: 0 2px 0 #C0392B;
+        }
 
         /* --- END HARD THEME --- */
 
@@ -137,6 +145,23 @@
         .screen.active {
             display: flex;
         }
+        
+        /* --- General Button Styling for Mode Select --- */
+        .action-button {
+            border: none;
+            padding: 1.5rem;
+            border-radius: 15px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 15px;
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+        .action-button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0;
+        }
 
         /* --- Level Selection Screen --- */
         #level-select-screen .level-grid {
@@ -148,17 +173,9 @@
         .level-btn {
             background-color: var(--color-secondary);
             color: var(--color-text-light);
-            border: none;
-            padding: 1.5rem 0.5rem;
-            border-radius: 12px;
-            font-size: 1.4rem;
-            font-weight: bold;
-            cursor: pointer;
             box-shadow: 0 4px 0 #3188d6;
-            transition: transform 0.1s, box-shadow 0.1s;
         }
         .level-btn:active {
-            transform: translateY(2px);
             box-shadow: 0 2px 0 #3188d6;
         }
         .level-btn-title {
@@ -166,6 +183,32 @@
             font-weight: 400;
             display: block;
             margin-top: 5px;
+        }
+
+        /* --- Mode Selection Screen --- */
+        #mode-selection-screen .action-button.start-game {
+            background-color: var(--color-correct);
+            color: var(--color-text-light);
+            box-shadow: 0 5px 0 #388E3C;
+        }
+        #mode-selection-screen .action-button.start-game:active {
+            box-shadow: 0 2px 0 #388E3C;
+        }
+        #mode-selection-screen .action-button.auto-play {
+            background-color: var(--color-primary);
+            color: var(--color-text-light);
+            box-shadow: 0 5px 0 #E64A19;
+        }
+        #mode-selection-screen .action-button.auto-play:active {
+            box-shadow: 0 2px 0 #E64A19;
+        }
+        .container.hard-theme #mode-selection-screen .action-button.auto-play {
+             background-color: #F39C12; /* Gold */
+             box-shadow: 0 5px 0 #D4AC0D;
+             color: var(--color-text-dark);
+        }
+        .container.hard-theme #mode-selection-screen .action-button.auto-play:active {
+             box-shadow: 0 2px 0 #D4AC0D;
         }
         
         /* --- Game Screen --- */
@@ -242,7 +285,6 @@
         .choice-button:disabled {
             opacity: 0.6;
             cursor: not-allowed;
-            pointer-events: none;
         }
 
         /* Feedback Colors & Reveal */
@@ -272,15 +314,19 @@
 
         /* Footer/Control */
         #game-footer {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px; 
             margin-top: 2rem;
             padding-top: 1rem;
             border-top: 1px solid #ECEFF1;
         }
+
         #next-btn {
             background-color: var(--color-primary);
             color: var(--color-text-light);
             border: none;
-            width: 100%;
+            width: 100%; /* Default width */
             padding: 1rem;
             border-radius: 50px;
             font-size: 1.2rem;
@@ -292,6 +338,31 @@
         #next-btn:active {
             transform: translateY(2px);
             box-shadow: 0 2px 0 #E64A19;
+        }
+
+        /* Auto Toggle Button */
+        #auto-toggle-btn {
+            background-color: var(--color-wrong); /* Red for 'STOP' */
+            color: var(--color-text-light);
+            border: none;
+            padding: 1rem 0.5rem;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 40%; 
+            box-shadow: 0 4px 0 #C62828;
+            transition: all 0.1s;
+            display: none; /* Hide by default */
+        }
+        #auto-toggle-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #C62828;
+        }
+        
+        /* Adjust button widths when auto-toggle is visible */
+        #game-footer.auto-mode #next-btn {
+            width: 60%;
         }
     </style>
 </head>
@@ -309,6 +380,27 @@
                 </div>
             <p style="padding-top: 2rem; color:#9E9E9E;">มีทั้งหมด 20 เลเวล (200 คำศัพท์)</p>
         </div>
+        
+        <div id="mode-selection-screen" class="screen">
+            <div class="top-content">
+                <h2 id="mode-level-title"></h2>
+                <p>โปรดเลือกโหมดการเล่น:</p>
+            </div>
+            <div class="mode-buttons-container">
+                <button class="action-button start-game" id="start-normal-btn">
+                    เริ่มเกม (โหมดปกติ)
+                    <span style="display:block; font-size: 0.9rem; font-weight: normal;">ตอบเอง - เวลา 5 วินาที</span>
+                </button>
+                <button class="action-button auto-play" id="start-auto-btn">
+                    เริ่มเกม (โหมดเล่นอัตโนมัติ)
+                    <span style="display:block; font-size: 0.9rem; font-weight: normal;">เฉลยอัตโนมัติ - เวลา 3 วินาที</span>
+                </button>
+            </div>
+            <button class="action-button" onclick="showScreen('level-select-screen')" style="background-color: #ccc; color: var(--color-text-dark); box-shadow: 0 4px 0 #bbb;">
+                กลับไปเลือกเลเวล
+            </button>
+        </div>
+
 
         <div id="game-screen" class="screen">
             <div class="top-content">
@@ -333,6 +425,7 @@
             </div>
 
             <div id="game-footer">
+                <button id="auto-toggle-btn">หยุดเล่นอัตโนมัติ</button>
                 <button id="next-btn" disabled>ข้อถัดไป/กลับหน้าหลัก</button>
             </div>
         </div>
@@ -584,12 +677,21 @@
                 { thai: "ที่หลบภัย", correct: "haven", decoy: "heaven" },
             ]},
         ];
+        
+        // --- CONSTANTS ---
+        const NORMAL_TIMER_MS = 5000;
+        const AUTO_PLAY_TIMER_MS = 3000;
+        const AUTO_PLAY_REVEAL_DELAY_MS = 2000; // Delay before moving to the next question in auto mode
 
         // --- ELEMENTS ---
         const mainContainer = document.getElementById('main-container');
         const levelSelectScreen = document.getElementById('level-select-screen');
+        const modeSelectionScreen = document.getElementById('mode-selection-screen'); // NEW
         const gameScreen = document.getElementById('game-screen');
         const levelGridEl = document.getElementById('level-grid');
+        const modeLevelTitleEl = document.getElementById('mode-level-title'); // NEW
+        const startNormalBtn = document.getElementById('start-normal-btn'); // NEW
+        const startAutoBtn = document.getElementById('start-auto-btn'); // NEW
 
         const levelTitleEl = document.getElementById('level-title');
         const qCountEl = document.getElementById('q-count');
@@ -599,6 +701,8 @@
         const choiceA = document.getElementById('choice-A');
         const choiceB = document.getElementById('choice-B');
         const nextBtn = document.getElementById('next-btn');
+        const autoToggleBtn = document.getElementById('auto-toggle-btn'); // NEW
+        const gameFooterEl = document.getElementById('game-footer'); // NEW
         const choiceButtons = [choiceA, choiceB];
 
         // --- GAME STATE ---
@@ -606,7 +710,9 @@
         let currentQuizIndex = 0;
         let score = 0;
         let timerTimeout = null;
+        let autoPlayTimeout = null; // NEW
         let isAnswered = false;
+        let isAutoPlay = false; // NEW state
         let isSpeaking = false;
         let voices = [];
         let audioContext;
@@ -706,6 +812,11 @@
                 screen.classList.remove('active');
             });
             document.getElementById(id).classList.add('active');
+            
+            // Cancel any ongoing process when switching screens
+            clearTimeout(timerTimeout);
+            clearTimeout(autoPlayTimeout);
+            window.speechSynthesis.cancel();
         }
 
         function createLevelButtons() {
@@ -723,7 +834,7 @@
                 btn.setAttribute('data-level', data.level);
                 
                 if (data.level >= 11) {
-                    btn.style.backgroundColor = '#9B59B6'; // Hard theme color
+                    btn.style.backgroundColor = '#9B59B6'; 
                     btn.style.boxShadow = '0 4px 0 #8E44AD';
                 }
                 
@@ -732,38 +843,90 @@
                     if (audioContext && audioContext.state === 'suspended') {
                          audioContext.resume();
                     }
-                    startLevel(data.level);
+                    showModeSelection(data.level); // New flow: go to mode selection
                 });
                 levelGridEl.appendChild(btn);
             });
         }
-
-        function updateStatusBar() {
-            levelTitleEl.textContent = `${currentLevelData.title} (Level ${currentLevelData.level})`;
-            qCountEl.textContent = `ข้อ: ${currentQuizIndex}/${currentLevelData.questions.length}`;
-            scoreEl.textContent = `คะแนน: ${score}`;
-        }
-
-        // --- GAME LOGIC ---
-
-        function startLevel(levelId) {
+        
+        function showModeSelection(levelId) {
             currentLevelData = allQuizData.find(data => data.level === levelId);
-            currentQuizIndex = 0;
-            score = 0;
+            modeLevelTitleEl.textContent = `เลือกโหมดการเล่น: Level ${levelId} - ${currentLevelData.title}`;
             
-            // Apply theme change based on level
+            // Apply theme change based on level immediately
             if (levelId >= 11) {
                 mainContainer.classList.add('hard-theme');
             } else {
                 mainContainer.classList.remove('hard-theme');
             }
             
+            showScreen('mode-selection-screen');
+        }
+        
+        function updateStatusBar() {
+            levelTitleEl.textContent = `${currentLevelData.title} (Level ${currentLevelData.level})`;
+            qCountEl.textContent = `ข้อ: ${currentQuizIndex}/${currentLevelData.questions.length}`;
+            scoreEl.textContent = `คะแนน: ${score}`;
+        }
+        
+        function updateAutoPlayControls() {
+            if (isAutoPlay) {
+                gameFooterEl.classList.add('auto-mode');
+                autoToggleBtn.style.display = 'block';
+                autoToggleBtn.disabled = false;
+                nextBtn.textContent = 'ข้าม/จบเกม';
+            } else {
+                gameFooterEl.classList.remove('auto-mode');
+                autoToggleBtn.style.display = 'none';
+                nextBtn.textContent = (currentQuizIndex >= currentLevelData.questions.length && isAnswered) ? 'กลับหน้าหลัก (Level Selection)' : 'ข้อถัดไป';
+            }
+        }
+
+
+        // --- GAME LOGIC ---
+        function startGame(autoMode = false) {
+            isAutoPlay = autoMode;
+            currentQuizIndex = 0;
+            score = 0;
+            
             showScreen('game-screen');
+            updateAutoPlayControls();
             nextQuestion();
+        }
+        
+        function stopAutoPlay() {
+            if (!isAutoPlay) return;
+            isAutoPlay = false;
+            clearTimeout(timerTimeout);
+            clearTimeout(autoPlayTimeout);
+            window.speechSynthesis.cancel();
+            
+            updateAutoPlayControls();
+            
+            // Inform user and reset the current question to normal mode (5s timer)
+            thaiPromptEl.textContent = '✅ หยุดเล่นอัตโนมัติแล้ว! โหมดปกติ (ตอบเอง)';
+            thaiPromptEl.style.fontSize = '1.8rem';
+            thaiPromptEl.classList.add('revealed-text');
+            thaiPromptEl.style.color = 'var(--color-secondary)';
+            
+            // Re-setup the current question to restart the 5s timer and enable buttons
+            // Use a slight delay if the status message is to be read/seen
+            setTimeout(() => {
+                if (currentQuizIndex < currentLevelData.questions.length) {
+                    if (!isAnswered) {
+                        setupQuestion(currentLevelData.questions[currentQuizIndex]); // Restart 5s timer and re-enable buttons
+                    } else {
+                         // If already answered, just ensure next button is enabled
+                         nextBtn.disabled = false;
+                         nextBtn.style.display = 'block';
+                    }
+                }
+            }, 500);
         }
 
         function nextQuestion() {
             clearTimeout(timerTimeout);
+            clearTimeout(autoPlayTimeout);
             window.speechSynthesis.cancel();
             
             if (currentQuizIndex >= currentLevelData.questions.length) {
@@ -772,18 +935,18 @@
             }
             
             isAnswered = false;
-            nextBtn.textContent = 'ข้อถัดไป';
             nextBtn.disabled = true;
+            updateAutoPlayControls(); 
 
             // Reset UI
             thaiPromptEl.style.fontSize = '2rem';
             thaiPromptEl.style.color = currentLevelData.level >= 11 ? '#F1C40F' : 'var(--color-primary)';
-            thaiPromptEl.classList.remove('revealed-text'); // Remove special class
-
+            thaiPromptEl.classList.remove('revealed-text');
+            
             // Ensure buttons are reset from the hidden state
             choiceButtons.forEach(btn => {
                 btn.className = 'choice-button';
-                btn.disabled = false;
+                btn.disabled = isAutoPlay; // Disable if in Auto-Play mode
                 btn.style.display = 'block';
                 btn.style.height = 'auto';
                 btn.style.padding = '1.5rem';
@@ -795,7 +958,6 @@
         }
 
         function setupQuestion(q) {
-            // The prompt is only the Thai translation of the English word.
             thaiPromptEl.textContent = q.thai;
             
             // Speak the Thai prompt immediately
@@ -813,23 +975,34 @@
         }
 
         function startTimer() {
+            const durationMs = isAutoPlay ? AUTO_PLAY_TIMER_MS : NORMAL_TIMER_MS;
+            const durationSec = durationMs / 1000;
+
             // Reset timer bar CSS transition
             timerBarEl.style.transition = 'none';
             timerBarEl.style.width = '100%';
             
             void timerBarEl.offsetWidth; 
 
-            // Start countdown
+            // Start countdown animation
             setTimeout(() => {
-                timerBarEl.style.transition = 'width 5s linear';
+                timerBarEl.style.transition = `width ${durationSec}s linear`;
                 timerBarEl.style.width = '0%';
             }, 50);
 
+            // Set timeout action
             timerTimeout = setTimeout(() => {
                 if (!isAnswered) {
-                    checkAnswer(null); // Timeout
+                    const currentQ = currentLevelData.questions[currentQuizIndex];
+                    if (isAutoPlay) {
+                        // In AutoPlay mode, simulate the correct answer for reveal/auto-advance
+                        const correctBtn = choiceButtons.find(btn => btn.getAttribute('data-correct') === 'true');
+                        checkAnswer(correctBtn); 
+                    } else {
+                        checkAnswer(null); // Timeout logic for normal mode
+                    }
                 }
-            }, 5000);
+            }, durationMs);
         }
 
         function checkAnswer(selectedBtn) {
@@ -842,7 +1015,8 @@
 
             const currentQ = currentLevelData.questions[currentQuizIndex];
             const correctWord = currentQ.correct;
-            const isCorrect = selectedBtn && selectedBtn.getAttribute('data-correct') === 'true';
+            // In AutoPlay mode, selectedBtn is always the correct one or null (if interrupted/error), so force isCorrect=true if AutoPlay
+            const isCorrect = isAutoPlay ? true : (selectedBtn && selectedBtn.getAttribute('data-correct') === 'true'); 
 
             // 1. Stop Thai reading and play tone
             window.speechSynthesis.cancel();
@@ -861,6 +1035,15 @@
             
             // 4. Set Next Button action
             nextBtn.disabled = false;
+            
+            // 5. Auto-Play continuation
+            if (isAutoPlay) {
+                // Automatically proceed to the next question after a pause
+                autoPlayTimeout = setTimeout(() => {
+                    currentQuizIndex++;
+                    nextQuestion();
+                }, AUTO_PLAY_REVEAL_DELAY_MS); 
+            }
         }
 
         function revealAnswer(correctWord, selectedBtn, isCorrect, correctThaiMeaning) {
@@ -873,9 +1056,11 @@
             choiceButtons.forEach(btn => {
                 btn.classList.remove('wrong', 'correct');
                 
+                // Highlight the correct answer
                 if (btn.textContent === correctWord) {
                     btn.classList.add('correct');
                 } else {
+                    // Hide the decoy word
                     btn.classList.add('hidden-on-reveal');
                 }
             });
@@ -892,7 +1077,7 @@
 
             thaiPromptEl.textContent = statusPrefix + fullRevealText;
             thaiPromptEl.classList.add('revealed-text');
-            thaiPromptEl.style.fontSize = ''; // Let CSS handle the font size based on the class
+            thaiPromptEl.style.fontSize = ''; 
 
             updateStatusBar();
         }
@@ -906,12 +1091,14 @@
             thaiPromptEl.style.fontSize = '2.5rem';
             thaiPromptEl.style.color = score >= 8 ? 'var(--color-correct)' : 'var(--color-wrong)';
             thaiPromptEl.classList.remove('revealed-text');
-            thaiPromptEl.classList.add('revealed-text'); // Ensure it fits if long
+            thaiPromptEl.classList.add('revealed-text'); 
 
             choiceButtons.forEach(btn => btn.style.display = 'none');
             
             nextBtn.textContent = 'กลับหน้าหลัก (Level Selection)';
             nextBtn.disabled = false;
+            
+            updateAutoPlayControls();
         }
 
         // --- EVENT LISTENERS ---
@@ -919,7 +1106,7 @@
             if (audioContext && audioContext.state === 'suspended') {
                  audioContext.resume();
             }
-            if (!isAnswered) {
+            if (!isAnswered && !isAutoPlay) { // Only allow click in normal mode
                 checkAnswer(e.target);
             }
         }
@@ -929,15 +1116,25 @@
 
         nextBtn.addEventListener('click', () => {
             window.speechSynthesis.cancel();
+            clearTimeout(autoPlayTimeout); // Clear auto advance if any
+            
             if (currentQuizIndex >= currentLevelData.questions.length) {
                 choiceButtons.forEach(btn => btn.style.display = 'block');
                 mainContainer.classList.remove('hard-theme');
+                isAutoPlay = false;
                 showScreen('level-select-screen');
             } else {
                 currentQuizIndex++;
                 nextQuestion();
             }
         });
+        
+        // NEW: Mode Selection Buttons
+        startNormalBtn.addEventListener('click', () => startGame(false));
+        startAutoBtn.addEventListener('click', () => startGame(true));
+        
+        // NEW: Auto Play Toggle Button
+        autoToggleBtn.addEventListener('click', stopAutoPlay);
 
 
         // --- INITIAL SETUP ---
