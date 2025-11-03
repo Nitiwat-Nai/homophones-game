@@ -396,7 +396,7 @@
             </div>
 
             <div id="game-footer">
-                <button id="auto-toggle-btn">เริ่มเล่น (Auto)</button>
+                <button id="auto-toggle-btn">▶️ เริ่มเล่น (Auto)</button>
                 <button id="next-btn" disabled>ข้อถัดไป ⏭️/กลับหน้าหลัก</button>
             </div>
         </div>
@@ -652,7 +652,7 @@
         // --- CONSTANTS ---
         const NORMAL_TIMER_MS = 5000;
         const AUTO_PLAY_TIMER_MS = 3000; 
-        const AUTO_PLAY_REVEAL_DELAY_MS = 1000; 
+        const AUTO_PLAY_POST_SPEECH_DELAY_MS = 500; // New short delay after speech finishes
 
         // --- ELEMENTS ---
         const mainContainer = document.getElementById('main-container');
@@ -1028,26 +1028,35 @@
             // 2. Disable all choices
             choiceButtons.forEach(btn => btn.disabled = true);
             
-            // 3. Reveal and animate
-            revealAnswer(correctWord, selectedBtn, isCorrect, currentQ.thai, isAuto);
-            
             // 4. Set Next Button action
             nextBtn.disabled = false;
             
-            // 5. Auto-Play continuation
+            // 5. Auto-Play continuation: **NEW LOGIC**
             if (isAutoPlay) {
-                // Automatically proceed to the next question after a pause
-                autoPlayTimeout = setTimeout(() => {
-                    currentQuizIndex++;
-                    nextQuestion();
-                }, AUTO_PLAY_REVEAL_DELAY_MS); 
+                // Define the function to advance the game, to be called when speech ends
+                const speechEndAction = () => {
+                    // Add a small delay (0.5s) after speech finishes for better user experience
+                    autoPlayTimeout = setTimeout(() => {
+                        currentQuizIndex++;
+                        nextQuestion();
+                    }, AUTO_PLAY_POST_SPEECH_DELAY_MS); 
+                };
+
+                // 3. Reveal and animate, passing the callback
+                revealAnswer(correctWord, selectedBtn, isCorrect, currentQ.thai, isAuto, speechEndAction);
+
+            } else {
+                // Normal mode: No speech callback needed
+                revealAnswer(correctWord, selectedBtn, isCorrect, currentQ.thai, isAuto, null);
             }
         }
 
-        function revealAnswer(correctWord, selectedBtn, isCorrect, correctThaiMeaning, isAuto) {
+        // Modified to accept a callback for speech end
+        function revealAnswer(correctWord, selectedBtn, isCorrect, correctThaiMeaning, isAuto, onSpeechEnd = null) {
             const fullRevealText = `${correctWord} (${correctThaiMeaning})`;
 
-            speakText(correctWord, 'en-US'); 
+            // Speak the word, using the callback to signal when it's done
+            speakText(correctWord, 'en-US', onSpeechEnd); 
             
             choiceButtons.forEach(btn => {
                 btn.classList.remove('wrong', 'correct');
@@ -1060,7 +1069,7 @@
             });
             
             let statusPrefix = '';
-            if (isCorrect) { // This now covers both normal correct and auto correct (as requested)
+            if (isCorrect) { 
                  statusPrefix = '✅ ถูกต้อง: ';
                  thaiPromptEl.style.color = 'var(--color-correct)';
             } else {
