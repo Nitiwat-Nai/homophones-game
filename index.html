@@ -396,8 +396,8 @@
             </div>
 
             <div id="game-footer">
-                <button id="auto-toggle-btn">เริ่มเล่นอัตโนมัติ (Auto)</button>
-                <button id="next-btn" disabled>ข้อถัดไป/กลับหน้าหลัก</button>
+                <button id="auto-toggle-btn">เริ่มเล่น (Auto)</button>
+                <button id="next-btn" disabled>ข้อถัดไป ⏭️/กลับหน้าหลัก</button>
             </div>
         </div>
     </div>
@@ -651,8 +651,8 @@
 
         // --- CONSTANTS ---
         const NORMAL_TIMER_MS = 5000;
-        const AUTO_PLAY_TIMER_MS = 3000; // 3 seconds as requested
-        const AUTO_PLAY_REVEAL_DELAY_MS = 1000; // Pause after reveal before next question (Adjusted from 2000 to 1000)
+        const AUTO_PLAY_TIMER_MS = 3000; 
+        const AUTO_PLAY_REVEAL_DELAY_MS = 1000; 
 
         // --- ELEMENTS ---
         const mainContainer = document.getElementById('main-container');
@@ -678,7 +678,7 @@
         const backToLevelBtn = document.getElementById('back-to-level-btn');
 
         // --- GAME STATE ---
-        let selectedLevelId = null; // To store the selected level before mode choice
+        let selectedLevelId = null; 
         let currentLevelData = null;
         let currentQuizIndex = 0;
         let score = 0;
@@ -847,23 +847,25 @@
                 gameFooterEl.classList.add('auto-mode');
                 autoToggleBtn.style.display = 'block';
                 autoToggleBtn.classList.add('auto-active');
-                autoToggleBtn.textContent = '⏸️ หยุดเล่นอัตโนมัติ (Auto)';
+                // Change text as requested
+                autoToggleBtn.textContent = '⏸️ หยุดเล่น (Auto)';
+                // Change next button text
                 nextBtn.textContent = '⏭️ ข้าม/จบเกม';
             } else {
                 // Normal Mode: Show Start Auto button on the left
                 gameFooterEl.classList.remove('auto-mode');
                 autoToggleBtn.style.display = 'block'; 
                 autoToggleBtn.classList.remove('auto-active');
-                autoToggleBtn.textContent = '▶️ เริ่มเล่นอัตโนมัติ (Auto)';
+                // Change text as requested
+                autoToggleBtn.textContent = '▶️ เริ่มเล่น (Auto)';
                 
                 // Keep the next button text standard for normal mode
-                nextBtn.textContent = (currentQuizIndex >= currentLevelData.questions.length && isAnswered) ? 'กลับหน้าหลัก (Level Selection)' : 'ข้อถัดไป';
+                nextBtn.textContent = (currentQuizIndex >= currentLevelData.questions.length && isAnswered) ? 'กลับหน้าหลัก (Level Selection)' : 'ข้อถัดไป ⏭️';
             }
         }
 
 
         // --- GAME LOGIC ---
-        // Combined function to start game session
         function startGame(levelId, autoMode) {
             currentLevelData = allQuizData.find(data => data.level === levelId); 
             isAutoPlay = autoMode;
@@ -889,7 +891,7 @@
             
             // If question is not answered, immediately start the auto timer
             if (!isAnswered && currentQuizIndex < currentLevelData.questions.length) {
-                window.speechSynthesis.cancel(); // Stop current speech if any
+                window.speechSynthesis.cancel(); 
                 startTimer(); 
             }
         }
@@ -901,19 +903,17 @@
             clearTimeout(autoPlayTimeout);
             window.speechSynthesis.cancel();
             
-            // Re-enable choices for the current question if not answered
             if (!isAnswered && currentQuizIndex < currentLevelData.questions.length) {
                  choiceButtons.forEach(btn => btn.disabled = false);
                  
-                 // Show status message (Optional, but helpful)
-                 thaiPromptEl.textContent = `✅ หยุดเล่นอัตโนมัติ! (โหมดปกติ)`;
+                 // Show status message 
+                 thaiPromptEl.textContent = `✅ หยุดเล่น! (กลับสู่โหมดปกติ)`;
                  thaiPromptEl.style.fontSize = '1.8rem';
                  thaiPromptEl.style.color = 'var(--color-secondary)';
                  
-                 // Restart normal timer after a short delay to allow player to see message
                  setTimeout(() => {
                     if (!isAnswered) {
-                         setupQuestion(currentLevelData.questions[currentQuizIndex]); // Restart with normal timer
+                         setupQuestion(currentLevelData.questions[currentQuizIndex]); 
                     }
                  }, 500); 
             }
@@ -943,7 +943,7 @@
             // Reset buttons
             choiceButtons.forEach(btn => {
                 btn.className = 'choice-button';
-                btn.disabled = isAutoPlay; // Disable choices if in Auto-Play mode
+                btn.disabled = isAutoPlay; 
                 btn.style.display = 'block';
                 btn.style.height = 'auto';
                 btn.style.padding = '1.5rem';
@@ -994,10 +994,9 @@
                 if (!isAnswered) {
                     const currentQ = currentLevelData.questions[currentQuizIndex];
                     if (isAutoPlay) {
-                        // AutoPlay: Simulate correct answer (null selectedBtn for auto)
                         checkAnswer(null, true); 
                     } else {
-                        checkAnswer(null, false); // Normal: Timeout logic (Wrong)
+                        checkAnswer(null, false); 
                     }
                 }
             }, durationMs);
@@ -1061,8 +1060,8 @@
             });
             
             let statusPrefix = '';
-            if (isAuto || isCorrect) { 
-                 statusPrefix = isAuto ? '🤖 ถูกอัตโนมัติ: ' : '✅ ถูกต้อง: ';
+            if (isCorrect) { // This now covers both normal correct and auto correct (as requested)
+                 statusPrefix = '✅ ถูกต้อง: ';
                  thaiPromptEl.style.color = 'var(--color-correct)';
             } else {
                  statusPrefix = selectedBtn ? '❌ ผิด: ' : '⏰ หมดเวลา: ';
